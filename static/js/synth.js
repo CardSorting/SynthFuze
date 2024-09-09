@@ -3,9 +3,9 @@ let audioContext;
 
 // Create oscillators, gain nodes, envelope, and filter for each synth
 const synths = [
-    { oscillator: null, gainNode: null, envelope: null, filter: null },
-    { oscillator: null, gainNode: null, envelope: null, filter: null },
-    { oscillator: null, gainNode: null, envelope: null, filter: null }
+    { oscillator: null, gainNode: null, envelope: null, filter: null, sequencer: null },
+    { oscillator: null, gainNode: null, envelope: null, filter: null, sequencer: null },
+    { oscillator: null, gainNode: null, envelope: null, filter: null, sequencer: null }
 ];
 
 // Initialize AudioContext when the page loads
@@ -54,6 +54,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadPresetButtons = document.querySelectorAll('.load-preset');
     loadPresetButtons.forEach(button => {
         button.addEventListener('click', loadPreset);
+    });
+
+    // Set up event listeners for play sequence buttons
+    const playSequenceButtons = document.querySelectorAll('.play-sequence');
+    playSequenceButtons.forEach(button => {
+        button.addEventListener('click', playSequence);
+    });
+
+    // Set up event listeners for stop sequence buttons
+    const stopSequenceButtons = document.querySelectorAll('.stop-sequence');
+    stopSequenceButtons.forEach(button => {
+        button.addEventListener('click', stopSequence);
+    });
+
+    // Set up event listeners for tempo sliders
+    const tempoSliders = document.querySelectorAll('input[id^="tempo"]');
+    tempoSliders.forEach(slider => {
+        slider.addEventListener('input', updateTempo);
     });
 
     // Load existing presets
@@ -199,6 +217,58 @@ function updateFilter(event) {
     valueSpan.textContent = parameter === 'frequency' ? `${value} Hz` : value.toFixed(1);
 }
 
+function playSequence(event) {
+    const synthIndex = event.target.dataset.synth;
+    const index = parseInt(synthIndex) - 1;
+    const synth = synths[index];
+
+    if (synth.sequencer) {
+        stopSequence({ target: { dataset: { synth: synthIndex } } });
+    }
+
+    const steps = document.querySelectorAll(`#sequence-grid${synthIndex} input[type="checkbox"]`);
+    const tempo = document.getElementById(`tempo${synthIndex}`).value;
+    const stepDuration = 60 / tempo / 2; // 16th notes
+
+    synth.sequencer = setInterval(() => {
+        steps.forEach((step, i) => {
+            if (step.checked) {
+                setTimeout(() => {
+                    startSynth(synthIndex);
+                    setTimeout(() => stopSynth(synthIndex), stepDuration * 1000 * 0.9);
+                }, i * stepDuration * 1000);
+            }
+        });
+    }, steps.length * stepDuration * 1000);
+}
+
+function stopSequence(event) {
+    const synthIndex = event.target.dataset.synth;
+    const index = parseInt(synthIndex) - 1;
+    const synth = synths[index];
+
+    if (synth.sequencer) {
+        clearInterval(synth.sequencer);
+        synth.sequencer = null;
+    }
+}
+
+function updateTempo(event) {
+    const synthIndex = event.target.id.slice(-1);
+    const tempo = event.target.value;
+    const tempoValueSpan = document.getElementById(`tempo${synthIndex}-value`);
+    tempoValueSpan.textContent = `${tempo} BPM`;
+
+    // If the sequence is currently playing, restart it with the new tempo
+    const playSequenceButton = document.querySelector(`.play-sequence[data-synth="${synthIndex}"]`);
+    const stopSequenceButton = document.querySelector(`.stop-sequence[data-synth="${synthIndex}"]`);
+    
+    if (synths[parseInt(synthIndex) - 1].sequencer) {
+        stopSequence({ target: stopSequenceButton });
+        playSequence({ target: playSequenceButton });
+    }
+}
+
 function savePreset(event) {
     const synthIndex = event.target.dataset.synth;
     const presetName = document.getElementById(`preset-name${synthIndex}`).value.trim();
@@ -216,7 +286,9 @@ function savePreset(event) {
         sustain: document.getElementById(`sustain${synthIndex}`).value,
         release: document.getElementById(`release${synthIndex}`).value,
         filterFreq: document.getElementById(`filterFreq${synthIndex}`).value,
-        filterQ: document.getElementById(`filterQ${synthIndex}`).value
+        filterQ: document.getElementById(`filterQ${synthIndex}`).value,
+        tempo: document.getElementById(`tempo${synthIndex}`).value,
+        sequence: Array.from(document.querySelectorAll(`#sequence-grid${synthIndex} input[type="checkbox"]`)).map(step => step.checked)
     };
 
     // Save preset to localStorage
@@ -253,6 +325,13 @@ function loadPreset(event) {
         document.getElementById(`release${synthIndex}`).value = preset.release;
         document.getElementById(`filterFreq${synthIndex}`).value = preset.filterFreq;
         document.getElementById(`filterQ${synthIndex}`).value = preset.filterQ;
+        document.getElementById(`tempo${synthIndex}`).value = preset.tempo;
+
+        // Load sequence
+        const steps = document.querySelectorAll(`#sequence-grid${synthIndex} input[type="checkbox"]`);
+        steps.forEach((step, i) => {
+            step.checked = preset.sequence[i];
+        });
 
         // Update displays and synth parameters
         updateFrequency({ target: document.getElementById(`frequency${synthIndex}`) });
@@ -263,6 +342,7 @@ function loadPreset(event) {
         updateEnvelope({ target: document.getElementById(`release${synthIndex}`) });
         updateFilter({ target: document.getElementById(`filterFreq${synthIndex}`) });
         updateFilter({ target: document.getElementById(`filterQ${synthIndex}`) });
+        updateTempo({ target: document.getElementById(`tempo${synthIndex}`) });
 
         alert(`Preset "${selectedPreset}" loaded successfully`);
     }

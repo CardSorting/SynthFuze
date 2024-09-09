@@ -66,6 +66,21 @@
                     </select>
                     <button class="load-preset" data-synth="{{ i }}">Load Preset</button>
                 </div>
+                <div class="sequencer">
+                    <h3>Sequencer</h3>
+                    <div class="sequence-grid" id="sequence-grid{{ i }}">
+                        {% for step in range(8) %}
+                        <input type="checkbox" id="step{{ i }}-{{ step }}" class="sequence-step">
+                        {% endfor %}
+                    </div>
+                    <div class="sequencer-controls">
+                        <button class="play-sequence" data-synth="{{ i }}">Play Sequence</button>
+                        <button class="stop-sequence" data-synth="{{ i }}">Stop Sequence</button>
+                        <label for="tempo{{ i }}">Tempo:</label>
+                        <input type="range" id="tempo{{ i }}" min="60" max="240" value="120" step="1">
+                        <span id="tempo{{ i }}-value">120 BPM</span>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
