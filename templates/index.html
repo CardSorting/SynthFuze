@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Synth Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Multi-Synth Application</h1>
+    </header>
+    <main>
+        <div id="synth-container">
+            <div class="synth" id="synth1">
+                <h2>Synth 1</h2>
+                <div class="controls">
+                    <label for="frequency1">Frequency:</label>
+                    <input type="range" id="frequency1" min="20" max="2000" value="440" step="1">
+                    <span id="frequency1-value">440 Hz</span>
+                </div>
+                <div class="controls">
+                    <label for="waveform1">Waveform:</label>
+                    <select id="waveform1">
+                        <option value="sine">Sine</option>
+                        <option value="square">Square</option>
+                        <option value="sawtooth">Sawtooth</option>
+                        <option value="triangle">Triangle</option>
+                    </select>
+                </div>
+                <button class="play-button" data-synth="1">Play</button>
+            </div>
+            <div class="synth" id="synth2">
+                <h2>Synth 2</h2>
+                <div class="controls">
+                    <label for="frequency2">Frequency:</label>
+                    <input type="range" id="frequency2" min="20" max="2000" value="220" step="1">
+                    <span id="frequency2-value">220 Hz</span>
+                </div>
+                <div class="controls">
+                    <label for="waveform2">Waveform:</label>
+                    <select id="waveform2">
+                        <option value="sine">Sine</option>
+                        <option value="square">Square</option>
+                        <option value="sawtooth">Sawtooth</option>
+                        <option value="triangle">Triangle</option>
+                    </select>
+                </div>
+                <button class="play-button" data-synth="2">Play</button>
+            </div>
+            <div class="synth" id="synth3">
+                <h2>Synth 3</h2>
+                <div class="controls">
+                    <label for="frequency3">Frequency:</label>
+                    <input type="range" id="frequency3" min="20" max="2000" value="880" step="1">
+                    <span id="frequency3-value">880 Hz</span>
+                </div>
+                <div class="controls">
+                    <label for="waveform3">Waveform:</label>
+                    <select id="waveform3">
+                        <option value="sine">Sine</option>
+                        <option value="square">Square</option>
+                        <option value="sawtooth">Sawtooth</option>
+                        <option value="triangle">Triangle</option>
+                    </select>
+                </div>
+                <button class="play-button" data-synth="3">Play</button>
+            </div>
+        </div>
+    </main>
+    <script src="{{ url_for('static', filename='js/synth.js') }}"></script>
+</body>
+</html>
