@@ -70,6 +70,42 @@ select {
     background-color: #45a049;
 }
 
+.preset-controls {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.preset-controls input[type="text"] {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.preset-controls select {
+    flex: 1;
+}
+
+.preset-controls button {
+    background-color: #008CBA;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.preset-controls button:hover {
+    background-color: #007B9A;
+}
+
 @media (max-width: 768px) {
     .synth {
         width: 100%;

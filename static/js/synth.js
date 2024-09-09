@@ -43,6 +43,21 @@ document.addEventListener('DOMContentLoaded', () => {
     filterControls.forEach(control => {
         control.addEventListener('input', updateFilter);
     });
+
+    // Set up event listeners for save preset buttons
+    const savePresetButtons = document.querySelectorAll('.save-preset');
+    savePresetButtons.forEach(button => {
+        button.addEventListener('click', savePreset);
+    });
+
+    // Set up event listeners for load preset buttons
+    const loadPresetButtons = document.querySelectorAll('.load-preset');
+    loadPresetButtons.forEach(button => {
+        button.addEventListener('click', loadPreset);
+    });
+
+    // Load existing presets
+    loadExistingPresets();
 });
 
 function startSynth(synthIndex) {
@@ -182,4 +197,95 @@ function updateFilter(event) {
     // Update the filter parameter value display
     const valueSpan = document.getElementById(`${event.target.id}-value`);
     valueSpan.textContent = parameter === 'frequency' ? `${value} Hz` : value.toFixed(1);
+}
+
+function savePreset(event) {
+    const synthIndex = event.target.dataset.synth;
+    const presetName = document.getElementById(`preset-name${synthIndex}`).value.trim();
+
+    if (presetName === '') {
+        alert('Please enter a preset name');
+        return;
+    }
+
+    const preset = {
+        frequency: document.getElementById(`frequency${synthIndex}`).value,
+        waveform: document.getElementById(`waveform${synthIndex}`).value,
+        attack: document.getElementById(`attack${synthIndex}`).value,
+        decay: document.getElementById(`decay${synthIndex}`).value,
+        sustain: document.getElementById(`sustain${synthIndex}`).value,
+        release: document.getElementById(`release${synthIndex}`).value,
+        filterFreq: document.getElementById(`filterFreq${synthIndex}`).value,
+        filterQ: document.getElementById(`filterQ${synthIndex}`).value
+    };
+
+    // Save preset to localStorage
+    const presets = JSON.parse(localStorage.getItem(`synth${synthIndex}Presets`) || '{}');
+    presets[presetName] = preset;
+    localStorage.setItem(`synth${synthIndex}Presets`, JSON.stringify(presets));
+
+    // Update preset select options
+    updatePresetOptions(synthIndex);
+
+    alert(`Preset "${presetName}" saved successfully`);
+}
+
+function loadPreset(event) {
+    const synthIndex = event.target.dataset.synth;
+    const presetSelect = document.getElementById(`preset-select${synthIndex}`);
+    const selectedPreset = presetSelect.value;
+
+    if (selectedPreset === '') {
+        alert('Please select a preset to load');
+        return;
+    }
+
+    const presets = JSON.parse(localStorage.getItem(`synth${synthIndex}Presets`) || '{}');
+    const preset = presets[selectedPreset];
+
+    if (preset) {
+        // Apply preset values to synth controls
+        document.getElementById(`frequency${synthIndex}`).value = preset.frequency;
+        document.getElementById(`waveform${synthIndex}`).value = preset.waveform;
+        document.getElementById(`attack${synthIndex}`).value = preset.attack;
+        document.getElementById(`decay${synthIndex}`).value = preset.decay;
+        document.getElementById(`sustain${synthIndex}`).value = preset.sustain;
+        document.getElementById(`release${synthIndex}`).value = preset.release;
+        document.getElementById(`filterFreq${synthIndex}`).value = preset.filterFreq;
+        document.getElementById(`filterQ${synthIndex}`).value = preset.filterQ;
+
+        // Update displays and synth parameters
+        updateFrequency({ target: document.getElementById(`frequency${synthIndex}`) });
+        updateWaveform({ target: document.getElementById(`waveform${synthIndex}`) });
+        updateEnvelope({ target: document.getElementById(`attack${synthIndex}`) });
+        updateEnvelope({ target: document.getElementById(`decay${synthIndex}`) });
+        updateEnvelope({ target: document.getElementById(`sustain${synthIndex}`) });
+        updateEnvelope({ target: document.getElementById(`release${synthIndex}`) });
+        updateFilter({ target: document.getElementById(`filterFreq${synthIndex}`) });
+        updateFilter({ target: document.getElementById(`filterQ${synthIndex}`) });
+
+        alert(`Preset "${selectedPreset}" loaded successfully`);
+    }
+}
+
+function updatePresetOptions(synthIndex) {
+    const presetSelect = document.getElementById(`preset-select${synthIndex}`);
+    const presets = JSON.parse(localStorage.getItem(`synth${synthIndex}Presets`) || '{}');
+
+    // Clear existing options
+    presetSelect.innerHTML = '<option value="">Select Preset</option>';
+
+    // Add options for each preset
+    Object.keys(presets).forEach(presetName => {
+        const option = document.createElement('option');
+        option.value = presetName;
+        option.textContent = presetName;
+        presetSelect.appendChild(option);
+    });
+}
+
+function loadExistingPresets() {
+    for (let i = 1; i <= 3; i++) {
+        updatePresetOptions(i);
+    }
 }

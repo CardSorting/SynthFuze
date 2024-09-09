@@ -58,6 +58,14 @@
                     <span id="filterQ{{ i }}-value">1</span>
                 </div>
                 <button class="play-button" data-synth="{{ i }}">Play</button>
+                <div class="preset-controls">
+                    <input type="text" id="preset-name{{ i }}" placeholder="Preset Name">
+                    <button class="save-preset" data-synth="{{ i }}">Save Preset</button>
+                    <select id="preset-select{{ i }}">
+                        <option value="">Select Preset</option>
+                    </select>
+                    <button class="load-preset" data-synth="{{ i }}">Load Preset</button>
+                </div>
             </div>
             {% endfor %}
         </div>
